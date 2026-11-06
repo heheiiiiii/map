@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>외대 제휴맵</title>
+  <meta name="description" content="한국외국어대학교 서울캠퍼스 주변 학과 제휴 업체와 대학생 할인 매장을 한눈에 보는 인터랙티브 지도">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="panel" id="panel" aria-label="제휴 업체 목록">
+      <button class="sheet-handle" id="sheetHandle" type="button" aria-label="목록 펼치기/접기"><span></span></button>
+
+      <header class="brand">
+        <div class="brand-text">
+          <h1 id="appTitle">외대 제휴맵</h1>
+          <p id="appSubtitle">이문동 · 회기 일대 학과 제휴와 대학생 할인</p>
+        </div>
+        <div class="brand-actions">
+          <button class="btn btn-primary" id="addBtn" type="button">+ 업체 추가</button>
+          <button class="btn btn-icon" id="dataBtn" type="button" title="데이터 내보내기 / 가져오기" aria-label="데이터 내보내기 / 가져오기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <p class="notice" id="sampleNotice" hidden>
+        지금 보이는 업체는 <b>예시 데이터</b>예요. <code>data/places.js</code>를 실제 제휴 정보로 바꾸거나, [+ 업체 추가]로 등록하세요.
+      </p>
+
+      <div class="controls" id="controls">
+        <label class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="searchInput" type="search" placeholder="업체명, 혜택, 학과 검색" autocomplete="off">
+        </label>
+
+        <div class="field-row">
+          <label for="deptSelect" class="field-label">내 학과</label>
+          <select id="deptSelect"></select>
+        </div>
+
+        <div class="seg" role="tablist" id="kindSeg">
+          <button type="button" role="tab" data-kind="all" aria-selected="true">전체</button>
+          <button type="button" role="tab" data-kind="dept" aria-selected="false"><i class="dot dot-dept"></i>학과 제휴</button>
+          <button type="button" role="tab" data-kind="student" aria-selected="false"><i class="dot dot-student"></i>대학생 할인</button>
+          <button type="button" role="tab" data-kind="fav" aria-selected="false">★ 즐겨찾기</button>
+        </div>
+
+        <div class="chips" id="categoryChips" aria-label="업종"></div>
+
+        <div class="field-row field-row--split">
+          <select id="sortSelect" aria-label="정렬">
+            <option value="distance">캠퍼스에서 가까운 순</option>
+            <option value="benefits">혜택 많은 순</option>
+            <option value="name">이름순</option>
+          </select>
+          <label class="check"><input type="checkbox" id="hideExpired" checked> 지난 혜택 숨기기</label>
+        </div>
+      </div>
+
+      <div class="list-wrap" id="listWrap">
+        <p class="result-meta" id="resultMeta"></p>
+        <ul class="list" id="list"></ul>
+      </div>
+
+      <section class="detail" id="detail" hidden aria-live="polite"></section>
+    </aside>
+
+    <main class="map-wrap">
+      <div id="map" role="application" aria-label="한국외대 주변 지도"></div>
+
+      <div class="map-tools">
+        <button class="tool" id="campusBtn" type="button" title="캠퍼스로 이동">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5zM6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg><span>캠퍼스</span>
+        </button>
+        <button class="tool" id="locateBtn" type="button" title="내 위치">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span>내 위치</span>
+        </button>
+        <button class="tool" id="ringBtn" type="button" title="도보 반경 표시" aria-pressed="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg><span>도보 반경</span>
+        </button>
+      </div>
+
+      <div class="legend" id="legend">
+        <span><i class="pin-mini"></i>대학생 할인</span>
+        <span><i class="pin-mini pin-mini--dept"></i>학과 제휴 포함</span>
+        <span><i class="pin-mini pin-mini--mine"></i>내 학과 제휴</span>
+      </div>
+
+      <div class="add-hint" id="addHint" hidden>
+        <span>지도에서 업체 위치를 클릭하세요</span>
+        <button class="btn btn-ghost" id="addCancel" type="button">취소</button>
+      </div>
+
+      <div class="toast" id="toast" role="status" hidden></div>
+    </main>
+  </div>
+
+  <!-- 업체 추가/수정 -->
+  <dialog id="placeDialog">
+    <form id="placeForm" method="dialog">
+      <h2 id="placeDialogTitle">업체 추가</h2>
+      <div class="form-grid">
+        <label class="span-2">업체명<input id="fName" name="name" required maxlength="40" placeholder="예: 이문동 국밥집"></label>
+        <label>업종<select id="fCategory" name="category"></select></label>
+        <label>영업시간<input id="fHours" name="hours" maxlength="60" placeholder="예: 11:00 – 21:00"></label>
+        <label class="span-2">주소 / 위치 설명<input id="fAddress" name="address" maxlength="80" placeholder="예: 외대앞역 1번 출구 앞"></label>
+      </div>
+
+      <fieldset class="benefit-box">
+        <legend>혜택</legend>
+        <div id="benefitRows"></div>
+        <button type="button" class="btn btn-ghost" id="addBenefitRow">+ 혜택 추가</button>
+      </fieldset>
+
+      <label>이용 조건<input id="fConditions" name="conditions" maxlength="80" placeholder="예: 학생증 제시"></label>
+      <p class="coords" id="fCoords"></p>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-danger" id="deletePlace" hidden>삭제</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-ghost" id="placeCancel">취소</button>
+        <button type="submit" class="btn btn-primary">저장</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 데이터 내보내기/가져오기 -->
+  <dialog id="dataDialog">
+    <div class="data-body">
+      <h2>데이터 관리</h2>
+      <p class="muted">직접 추가한 업체는 이 브라우저에만 저장돼요. 다른 사람과 공유하려면
+        <b>places.js 내려받기</b>로 받은 파일로 저장소의 <code>data/places.js</code>를 교체하세요.</p>
+      <div class="data-actions">
+        <button class="btn btn-primary" id="downloadJs" type="button">places.js 내려받기</button>
+        <button class="btn btn-ghost" id="copyJson" type="button">JSON 복사</button>
+      </div>
+      <label for="importText">JSON 가져오기 (업체 배열)</label>
+      <textarea id="importText" rows="6" placeholder='[{"name":"...","category":"food","lat":37.59,"lng":127.06,"benefits":[...]}]'></textarea>
+      <div class="dialog-actions">
+        <button class="btn btn-danger" id="clearCustom" type="button">내가 추가한 업체 모두 지우기</button>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" id="dataClose" type="button">닫기</button>
+        <button class="btn btn-primary" id="importBtn" type="button">가져오기</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="data/places.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
