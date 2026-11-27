@@ -1,1 +1,74 @@
-<!doctype html><title>village-call</title>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>섬 안내소 영상통화</title>
+  <meta name="description" content="섬 안내소 주민과 음성으로 영상통화를 해보세요.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main id="app" data-state="start">
+    <section class="stage" aria-hidden="true">
+      <div class="bg"></div>
+      <div class="sunbeam"></div>
+      <div class="dust"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div id="avatar-root"></div>
+    </section>
+
+    <header class="topbar">
+      <span class="live-dot"></span>
+      <strong class="char-name"></strong>
+      <span class="timer" id="timer">00:00</span>
+    </header>
+
+    <div class="thinking" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="captions" id="captions"></div>
+
+    <div class="pip" aria-hidden="true">
+      <div class="pip-ring" id="pip-ring"></div>
+      <span>나</span>
+    </div>
+
+    <nav class="controls">
+      <button class="btn round mute" id="mute" aria-pressed="false" aria-label="마이크 끄기">
+        <svg viewBox="0 0 24 24" class="ic-mic"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg>
+        <svg viewBox="0 0 24 24" class="ic-mic-off"><path d="M19 12h-2a5 5 0 0 1-.6 2.4l1.5 1.5A7 7 0 0 0 19 12Zm-4 .2V6a3 3 0 0 0-5.9-.8L15 11.1v1.1ZM4.3 3 3 4.3l6 6V12a3 3 0 0 0 4.4 2.6l1.5 1.5A5 5 0 0 1 7 12H5a7 7 0 0 0 6 6.92V21h2v-2.08a7 7 0 0 0 3.4-1.4l3.3 3.3 1.3-1.3L4.3 3Z"/></svg>
+      </button>
+      <button class="btn round hangup" id="hangup" aria-label="통화 종료">
+        <svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85a1 1 0 0 1-1.41-.01L.29 13.08a1 1 0 0 1 0-1.41C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67a1 1 0 0 1 0 1.41l-2.48 2.48a1 1 0 0 1-1.41.01 11.3 11.3 0 0 0-2.67-1.85 1 1 0 0 1-.56-.9v-3.1A14.9 14.9 0 0 0 12 9Z"/></svg>
+      </button>
+    </nav>
+
+    <section class="screen start-screen">
+      <div class="card">
+        <div class="portrait" id="portrait"></div>
+        <h1 class="char-name"></h1>
+        <p class="sub">섬 안내소 · 영상통화</p>
+        <button class="btn call" id="dial">
+          <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8Z"/></svg>
+          영상통화 걸기
+        </button>
+        <p class="notice" id="notice" role="status"></p>
+      </div>
+    </section>
+
+    <section class="screen ringing-screen">
+      <div class="ring-waves"><i></i><i></i><i></i></div>
+      <p class="ringing-text"><span class="char-name"></span>에게 연결 중…</p>
+    </section>
+
+    <section class="screen end-screen">
+      <div class="card">
+        <h2 id="end-title">통화 종료</h2>
+        <p class="sub" id="end-time"></p>
+        <button class="btn call" id="redial">다시 걸기</button>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
