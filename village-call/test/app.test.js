@@ -3,12 +3,7 @@ import assert from "node:assert/strict";
 import { createApp } from "../server/app.js";
 import { loadConfig, loadCharacter } from "../server/config.js";
 
-export async function listen(app) {
-  const server = app.listen(0);
-  await new Promise((r) => server.once("listening", r));
-  const { port } = server.address();
-  return { base: `http://127.0.0.1:${port}`, close: () => new Promise((r) => server.close(r)) };
-}
+import { listen } from "./helpers.js";
 
 test("loadConfig applies spec default limits", () => {
   const c = loadConfig({});

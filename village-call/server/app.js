@@ -1,6 +1,7 @@
 import express from "express";
 import { fileURLToPath } from "node:url";
 import { publicCharacter } from "./config.js";
+import { registerCallRoutes } from "./chat.js";
 
 const dir = (p) => fileURLToPath(new URL(p, import.meta.url));
 
@@ -11,7 +12,7 @@ export function createApp({ config, character, deps = {} }) {
 
   app.get("/api/character", (_req, res) => res.json(publicCharacter(character)));
 
-  if (deps.routes) deps.routes(app, { config, character });
+  if (deps.chat && deps.tts && deps.limits) registerCallRoutes(app, { config, ...deps });
 
   app.use("/assets", express.static(dir("../character/assets")));
   app.use("/audio", express.static(dir("../character/fallback-audio")));
