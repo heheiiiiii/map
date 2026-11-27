@@ -1,0 +1,6 @@
+node_modules/
+.env
+*.ckpt
+*.pth
+character/fallback-audio/*.wav
+scripts/out/
