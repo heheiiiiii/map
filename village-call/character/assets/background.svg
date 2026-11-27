@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <!-- 오리지널 플레이스홀더: 바닷가 섬 안내소 -->
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4e4c6"/><stop offset="1" stop-color="#ead3ab"/></linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd0ef"/><stop offset=".62" stop-color="#cdeefa"/><stop offset=".62" stop-color="#4fb3c8"/><stop offset="1" stop-color="#2f8fa8"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b7835a"/><stop offset="1" stop-color="#9a6a45"/></linearGradient>
+    <pattern id="planks" width="120" height="380" patternUnits="userSpaceOnUse"><rect width="120" height="380" fill="url(#wood)"/><path d="M0 0 V380" stroke="#875a39" stroke-width="5"/></pattern>
+    <radialGradient id="glow" cx="50%" cy="20%" r="70%"><stop offset="0" stop-color="#fff6d8" stop-opacity=".75"/><stop offset="1" stop-color="#fff6d8" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#wall)"/>
+  <!-- 둥근 창 -->
+  <g transform="translate(1340 120)">
+    <rect width="440" height="400" rx="200" fill="#8a5b3a"/>
+    <rect x="22" y="22" width="396" height="356" rx="178" fill="url(#sky)"/>
+    <circle cx="320" cy="110" r="38" fill="#fff4c2"/>
+    <path d="M60 250 q30 -26 60 0 q30 -26 60 0" fill="none" stroke="#e8f8ff" stroke-width="6" opacity=".7"/>
+    <path d="M230 300 q30 -22 60 0" fill="none" stroke="#e8f8ff" stroke-width="6" opacity=".7"/>
+    <path d="M220 22 V378 M22 220 H418" stroke="#8a5b3a" stroke-width="14"/>
+  </g>
+  <!-- 게시판 -->
+  <g transform="translate(150 160)">
+    <rect width="380" height="270" rx="16" fill="#c99a63"/>
+    <rect x="16" y="16" width="348" height="238" rx="10" fill="#e2bf8c"/>
+    <rect x="44" y="40" width="120" height="90" fill="#fffaf0" transform="rotate(-4 104 85)"/>
+    <rect x="190" y="52" width="140" height="100" fill="#ffe8a8" transform="rotate(3 260 102)"/>
+    <rect x="70" y="150" width="130" height="80" fill="#cfe8f7" transform="rotate(2 135 190)"/>
+    <circle cx="104" cy="46" r="9" fill="#e05d5d"/><circle cx="262" cy="58" r="9" fill="#4b8fd6"/><circle cx="134" cy="154" r="9" fill="#5cb36b"/>
+    <path d="M60 70 h70 M60 90 h55 M210 85 h90 M210 105 h70" stroke="#a5865f" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <!-- 벽시계 -->
+  <g transform="translate(960 150)">
+    <circle r="78" fill="#7a5233"/><circle r="64" fill="#fffaf0"/>
+    <path d="M0 0 V-40 M0 0 L28 14" stroke="#4a3020" stroke-width="7" stroke-linecap="round"/>
+    <circle r="7" fill="#4a3020"/>
+  </g>
+  <!-- 아래쪽 나무 판자 벽 -->
+  <rect y="640" width="1920" height="440" fill="url(#planks)"/>
+  <rect y="628" width="1920" height="24" fill="#7a5233"/>
+  <!-- 선반과 소품 -->
+  <g transform="translate(140 560)">
+    <rect width="420" height="22" rx="6" fill="#7a5233"/>
+    <rect x="30" y="-90" width="40" height="90" rx="6" fill="#e07a5f"/><rect x="76" y="-110" width="44" height="110" rx="6" fill="#3d8b8b"/><rect x="126" y="-80" width="36" height="80" rx="6" fill="#f2c14e"/>
+    <path d="M250 0 q20 -70 60 -60 q-10 40 -20 60z" fill="#f4a6a0"/>
+    <path d="M300 0 q30 -60 70 -40 q-20 30 -30 40z" fill="#e9d8c4"/>
+  </g>
+  <!-- 화분 -->
+  <g transform="translate(1700 760)">
+    <path d="M-60 0 h120 l-16 130 h-88z" fill="#c8693f"/>
+    <rect x="-68" y="-14" width="136" height="24" rx="8" fill="#a8532f"/>
+    <path d="M0 -10 C-60 -120 -120 -110 -140 -170 C-70 -160 -30 -110 0 -10 C20 -140 60 -200 110 -220 C90 -150 50 -90 0 -10" fill="#5fa86b"/>
+    <path d="M0 -10 C40 -90 120 -110 150 -90 C110 -60 60 -40 0 -10" fill="#4c9158"/>
+  </g>
+  <!-- 따뜻한 조명 -->
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+</svg>
