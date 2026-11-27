@@ -4,3 +4,4 @@ node_modules/
 *.pth
 character/fallback-audio/*.wav
 scripts/out/
+__pycache__/
