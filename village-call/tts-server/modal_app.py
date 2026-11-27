@@ -11,6 +11,7 @@
   /models/ref.txt      참조 음성의 대사 (한 줄)
 """
 
+import hmac
 import io
 import os
 import sys
@@ -51,7 +52,9 @@ models = modal.Volume.from_name("village-call-models", create_if_missing=True)
     secrets=[modal.Secret.from_name("village-call-tts")],
     scaledown_window=300,  # 5분 동안 요청이 없으면 0으로 축소
     timeout=120,
+    max_containers=2,  # 동시 요청이 몰려도 GPU가 무한정 늘지 않게
 )
+@modal.concurrent(max_inputs=2)  # 한 컨테이너가 문장 2개까지 동시에 받음 (웹 서버도 답변당 2개로 제한)
 class Voice:
     @modal.enter()
     def load(self):
@@ -120,7 +123,7 @@ class Voice:
             text: str
 
         def check(auth: str | None):
-            if auth != f"Bearer {self.token}":
+            if not hmac.compare_digest((auth or "").encode(), f"Bearer {self.token}".encode()):
                 raise HTTPException(status_code=401)
 
         @api.get("/warm")

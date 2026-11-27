@@ -9,7 +9,7 @@ const int = (v, d) => {
 };
 
 export function loadConfig(env = process.env) {
-  return {
+  const config = {
     port: int(env.PORT, 3000),
     provider: {
       chat: env.CHAT_PROVIDER === "mock" || (!env.ANTHROPIC_API_KEY && env.CHAT_PROVIDER !== "anthropic") ? "mock" : "anthropic",
@@ -18,6 +18,7 @@ export function loadConfig(env = process.env) {
     ttsUrl: (env.TTS_URL || "").replace(/\/+$/, ""),
     ttsToken: env.TTS_TOKEN || "",
     callSecret: env.CALL_SECRET || "dev-insecure-secret",
+    trustProxyHops: Number.parseInt(env.TRUST_PROXY_HOPS ?? "1", 10) || 0,
     limits: {
       callMaxSeconds: int(env.CALL_MAX_SECONDS, 300),
       callMaxTurns: int(env.CALL_MAX_TURNS, 30),
@@ -26,6 +27,10 @@ export function loadConfig(env = process.env) {
       maxUtteranceChars: int(env.MAX_UTTERANCE_CHARS, 300),
     },
   };
+  if (config.provider.chat === "anthropic" && !env.CALL_SECRET) {
+    throw new Error("CALL_SECRET이 없습니다. 실제 Claude를 쓸 때는 통화 토큰 위조를 막기 위해 CALL_SECRET을 꼭 설정하세요.");
+  }
+  return config;
 }
 
 export function loadCharacter(path = DEFAULT_CHARACTER) {

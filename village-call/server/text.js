@@ -35,11 +35,11 @@ export function createSentenceSplitter() {
 
 export function parseExpression(text) {
   const m = /^\s*\[([A-Za-z]+)\]\s*/.exec(text);
-  if (!m) return { expression: "neutral", rest: text.trim() };
+  if (!m) return { expression: "neutral", rest: text.trimStart() };
   const tag = m[1].toLowerCase();
   return {
     expression: EXPRESSIONS.includes(tag) ? tag : "neutral",
-    rest: text.slice(m[0].length).trim(),
+    rest: text.slice(m[0].length),
   };
 }
 

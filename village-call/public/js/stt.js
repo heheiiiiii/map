@@ -5,7 +5,6 @@ export function createStt({ onInterim = () => {}, onFinal = () => {}, onError = 
 
   let rec = null;
   let finalText = "";
-  let stopping = false;
 
   const create = () => {
     const r = new SR();
@@ -27,10 +26,8 @@ export function createStt({ onInterim = () => {}, onFinal = () => {}, onError = 
       else if (e.error !== "no-speech" && e.error !== "aborted") onError(e.error);
     };
     r.onend = () => {
-      const wasStopping = stopping;
       rec = null;
-      stopping = false;
-      if (!wasStopping) onFinal(finalText.trim());
+      onFinal(finalText.trim());
     };
     return r;
   };
@@ -40,7 +37,6 @@ export function createStt({ onInterim = () => {}, onFinal = () => {}, onError = 
     start() {
       if (rec) return;
       finalText = "";
-      stopping = false;
       rec = create();
       try {
         rec.start();
@@ -50,12 +46,13 @@ export function createStt({ onInterim = () => {}, onFinal = () => {}, onError = 
     },
     stop() {
       if (!rec) return;
-      stopping = true;
+      // 이전 인식기의 늦은 이벤트는 무시하고 바로 새로 시작할 수 있게 한다.
+      const old = rec;
+      rec = null;
+      old.onresult = old.onerror = old.onend = null;
       try {
-        rec.abort();
-      } catch {
-        rec = null;
-      }
+        old.abort();
+      } catch {}
     },
   };
 }

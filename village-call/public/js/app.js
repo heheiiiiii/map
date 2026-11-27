@@ -155,7 +155,7 @@ async function waitForWarm() {
   const until = performance.now() + WARM_TIMEOUT_MS;
   while (performance.now() < until && state === "ringing") {
     try {
-      const { ready } = await (await fetch("/api/warm")).json();
+      const { ready } = await (await fetch("/api/warm", { headers: { Authorization: `Bearer ${call.token}` } })).json();
       if (ready) return true;
     } catch {}
     await new Promise((r) => setTimeout(r, WARM_POLL_MS));

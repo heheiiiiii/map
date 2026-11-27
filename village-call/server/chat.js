@@ -4,6 +4,7 @@ import { createSentenceSplitter, parseExpression, cleanForSpeech, EXPRESSIONS } 
 const MODEL = "claude-opus-5-5";
 const MAX_HISTORY = 40;
 const FALLBACK_MS_PER_CHAR = 110;
+const TTS_CONCURRENCY = 2;
 const MOCK_REPLY = "[happy] 우와, 그랬군요! 정말 재미있었겠어요. 또 얘기해 주세요~";
 
 export function buildSystemPrompt(character) {
@@ -56,6 +57,9 @@ export function createChat({ config, character, anthropic }) {
 // 브라우저가 보낸 대화 기록을 검증하고 정리한다. 실패하면 null.
 export function sanitizeMessages(raw, maxChars) {
   if (!Array.isArray(raw)) return null;
+  // 마지막 항목은 반드시 방금 한 사용자 발화여야 한다.
+  const tail = raw.at(-1);
+  if (!tail || tail.role !== "user" || typeof tail.content !== "string") return null;
   let msgs = raw
     .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
     .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }))
@@ -64,8 +68,26 @@ export function sanitizeMessages(raw, maxChars) {
   const last = msgs.at(-1);
   if (!last || last.role !== "user") return null;
   const text = last.content.trim();
-  if (!text || [...raw.at(-1).content].length > maxChars) return null;
+  if (!text || [...last.content].length > maxChars) return null;
   return msgs;
+}
+
+const bearer = (req) => (req.get("authorization") || "").replace(/^Bearer\s+/i, "");
+
+// 동시에 max개까지만 실행하는 간단한 제한기
+function createGate(max) {
+  let active = 0;
+  const waiting = [];
+  return async (fn) => {
+    if (active >= max) await new Promise((r) => waiting.push(r));
+    active++;
+    try {
+      return await fn();
+    } finally {
+      active--;
+      waiting.shift()?.();
+    }
+  };
 }
 
 function sse(res, event, data) {
@@ -80,12 +102,14 @@ export function registerCallRoutes(app, { config, chat, tts, limits }) {
     res.json({ token: r.token, expiresAt: r.expiresAt, maxSeconds: config.limits.callMaxSeconds });
   });
 
-  app.get("/api/warm", async (_req, res) => {
+  // GPU 예열은 진행 중인 통화만 요청할 수 있다 (아무나 불러 GPU를 계속 켜두지 못하게).
+  app.get("/api/warm", async (req, res) => {
+    if (!limits.verifyCall(bearer(req))) return res.status(401).json({ error: "invalid" });
     res.json({ ready: await tts.warm() });
   });
 
   app.post("/api/chat", async (req, res) => {
-    const token = (req.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    const token = bearer(req);
     const messages = sanitizeMessages(req.body?.messages, config.limits.maxUtteranceChars);
     if (!token) return res.status(401).json({ error: "invalid" });
     if (!messages) return res.status(400).json({ error: "bad_request" });
@@ -101,6 +125,7 @@ export function registerCallRoutes(app, { config, chat, tts, limits }) {
     const abort = new AbortController();
     res.on("close", () => abort.abort());
 
+    const gate = createGate(TTS_CONCURRENCY);
     const splitter = createSentenceSplitter();
     const jobs = [];
     let head = "";
@@ -113,7 +138,7 @@ export function registerCallRoutes(app, { config, chat, tts, limits }) {
       if (!text) return;
       const index = jobs.length;
       jobs.push(
-        tts.synthesize(text).then(
+        gate(() => (abort.signal.aborted ? Promise.reject(new Error("aborted")) : tts.synthesize(text))).then(
           (r) => ({ index, text, audio: r.audio.toString("base64"), durationMs: Math.round(r.durationMs) }),
           () => ({ index, text, audio: null, durationMs: [...text].length * FALLBACK_MS_PER_CHAR }),
         ),

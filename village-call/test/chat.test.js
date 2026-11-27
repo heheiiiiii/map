@@ -133,7 +133,8 @@ test("6th call start from same IP is 429 ip_limit", async () => {
 test("GET /api/warm reports tts readiness", async () => {
   const { s } = await setup();
   try {
-    assert.deepEqual(await (await fetch(`${s.base}/api/warm`)).json(), { ready: true });
+    const { token } = await (await fetch(`${s.base}/api/call/start`, { method: "POST" })).json();
+    assert.deepEqual(await (await fetch(`${s.base}/api/warm`, { headers: { Authorization: `Bearer ${token}` } })).json(), { ready: true });
   } finally {
     await s.close();
   }
@@ -168,7 +169,7 @@ const delta = (text) => ({ type: "content_block_delta", delta: { type: "text_del
 
 test("anthropic chat sends spec model params and yields text deltas", async () => {
   const fake = fakeAnthropic([delta("[happy] 안"), { type: "message_delta" }, delta("녕!")]);
-  const chat = createChat({ config: loadConfig({ CHAT_PROVIDER: "anthropic", ANTHROPIC_API_KEY: "x" }), character, anthropic: fake });
+  const chat = createChat({ config: loadConfig({ CHAT_PROVIDER: "anthropic", ANTHROPIC_API_KEY: "x", CALL_SECRET: "s" }), character, anthropic: fake });
   let out = "";
   for await (const t of chat.stream(hello)) out += t;
   assert.equal(out, "[happy] 안녕!");
@@ -182,6 +183,6 @@ test("anthropic chat sends spec model params and yields text deltas", async () =
 
 test("anthropic chat throws on refusal", async () => {
   const fake = fakeAnthropic([delta("x")], "refusal");
-  const chat = createChat({ config: loadConfig({ CHAT_PROVIDER: "anthropic", ANTHROPIC_API_KEY: "x" }), character, anthropic: fake });
+  const chat = createChat({ config: loadConfig({ CHAT_PROVIDER: "anthropic", ANTHROPIC_API_KEY: "x", CALL_SECRET: "s" }), character, anthropic: fake });
   await assert.rejects(async () => { for await (const _ of chat.stream(hello)); });
 });

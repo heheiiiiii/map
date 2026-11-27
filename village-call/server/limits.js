@@ -50,6 +50,10 @@ export function createLimits({ limits, secret, now = () => Date.now(), store = c
       const payload = Buffer.from(JSON.stringify({ id: randomUUID(), exp: expiresAt })).toString("base64url");
       return { ok: true, token: `${payload}.${sign(payload)}`, expiresAt };
     },
+    verifyCall(token) {
+      const data = verify(token);
+      return !!data && typeof data.exp === "number" && now() <= data.exp;
+    },
     checkTurn(token) {
       const data = verify(token);
       if (!data || typeof data.id !== "string" || typeof data.exp !== "number") return { ok: false, reason: "invalid" };

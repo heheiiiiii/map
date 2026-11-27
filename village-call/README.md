@@ -32,7 +32,8 @@ npm start            # http://localhost:3000 을 크롬으로 열기
    | `CHAT_PROVIDER` | `anthropic` (mock으로 강제하려면 `mock`) |
    | `TTS_PROVIDER` | `gptsovits` |
    | `TTS_URL`, `TTS_TOKEN` | `tts-server/README.md`대로 배포한 주소와 토큰 |
-   | `CALL_SECRET` | 통화 토큰 서명용 긴 랜덤 문자열 (`openssl rand -hex 32`) |
+   | `CALL_SECRET` | 통화 토큰 서명용 긴 랜덤 문자열 (`openssl rand -hex 32`). 실제 Claude를 쓸 때 없으면 서버가 시작되지 않아요 |
+   | `TRUST_PROXY_HOPS` | 앞단 프록시 개수 (Render 등 호스팅은 기본값 1, 프록시 없이 직접 노출하면 0) |
    | `CALL_MAX_SECONDS` | 통화 최대 시간 (기본 300초) |
    | `CALL_MAX_TURNS` | 통화당 최대 대화 수 (기본 30) |
    | `IP_DAILY_CALLS` | IP당 하루 통화 수 (기본 5) |
